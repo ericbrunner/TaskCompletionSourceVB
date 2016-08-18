@@ -30,6 +30,9 @@ Module Module1
                             Console.WriteLine(SynchronizationContext.Current?.ToString())
                             Dim faultedTask As Task = pipelineTask.Result
 
+                            Console.ForegroundColor = ConsoleColor.Red
+                            Console.WriteLine($"Completed Task in State:{faultedTask.Status}")
+
                             Console.ForegroundColor = ConsoleColor.Cyan
 
                             Dim innerExceptions As ReadOnlyCollection(Of Exception) = Nothing
