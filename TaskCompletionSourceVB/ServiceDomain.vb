@@ -23,4 +23,9 @@ Public Class ServiceDomain
                                   End Sub)
         Return resultedTask
     End Function
+
+    Public Function StopPipeline() As Task
+        Console.WriteLine("Service stopping...")
+        Return Task.Delay(1000)
+    End Function
 End Class
