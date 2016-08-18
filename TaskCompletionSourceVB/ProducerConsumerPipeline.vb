@@ -11,20 +11,10 @@ Public Class ProducerConsumerPipeline
 
         Task.Run(Sub()
 
-                     Try
-                         Thread.Sleep(3000)
-                         'throw New Exception("Consumer ex.");
+                     Thread.Sleep(4000)
 
-                         Dim ex As Exception = New Exception("Consumer ex.")
-
-                         tcs.SetException(ex)
-
-                     Catch e As Exception
-
-                         Console.WriteLine(SynchronizationContext.Current?.ToString())
-                         tcs.SetException(e)
-                         Console.WriteLine(SynchronizationContext.Current?.ToString())
-                     End Try
+                     Dim ex As Exception = New Exception("Consumer ex.")
+                     tcs.SetException(ex)
 
                  End Sub)
 
@@ -36,19 +26,13 @@ Public Class ProducerConsumerPipeline
         Dim tcs = New TaskCompletionSource(Of Object)()
 
         Task.Run(Sub()
-                     Try
 
-                         Thread.Sleep(6000)
-                         Throw New Exception("Producer ex.")
+                     Thread.Sleep(5000)
 
-                     Catch e As Exception
+                     Dim ex As Exception = New Exception("Producer ex.")
+                     tcs.SetException(ex)
 
-                         Console.WriteLine(SynchronizationContext.Current?.ToString())
-                             tcs.SetException(e)
-                             Console.WriteLine(SynchronizationContext.Current?.ToString())
-                         End Try
-
-                     End Sub)
+                 End Sub)
 
         Return tcs.Task
     End Function
