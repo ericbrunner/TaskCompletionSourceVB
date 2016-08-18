@@ -11,7 +11,7 @@ Public Class ProducerConsumerPipeline
 
         Task.Run(Sub()
 
-                     Thread.Sleep(4000)
+                     Thread.Sleep(60000)
 
                      Dim ex As Exception = New Exception("Consumer ex.")
                      tcs.SetException(ex)

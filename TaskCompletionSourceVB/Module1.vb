@@ -1,29 +1,34 @@
 ﻿Imports System.Threading
+Imports System.Collections.ObjectModel
 
 Module Module1
 
     Sub Main()
-        Dim pipeline As ProducerConsumerPipeline = New ProducerConsumerPipeline()
+        Dim serviceDomain As ServiceDomain = New ServiceDomain()
 
-        Dim producer As Task = pipeline.StartProducer()
-        Dim consumer As Task = pipeline.StartConsumer()
+        ' start pipeline
+        serviceDomain.StartPipeline().ContinueWith(Sub(pipelineTask As Task(Of Task))
 
-        Dim resultedTask As Task(Of Task) = Task.WhenAny(New List(Of Task) From {producer, consumer})
+                                                       Console.WriteLine(SynchronizationContext.Current?.ToString())
+                                                       Dim faultedTask As Task = pipelineTask.Result
 
+                                                       Console.ForegroundColor = ConsoleColor.Cyan
 
-        resultedTask.ContinueWith(AddressOf Final)
+                                                       Dim innerExceptions As ReadOnlyCollection(Of Exception) = Nothing
+                                                       innerExceptions = faultedTask.Exception?.Flatten()?.InnerExceptions
+
+                                                       If (innerExceptions IsNot Nothing) Then
+                                                           For Each innerException In innerExceptions
+                                                               Console.WriteLine($"{innerException.ToString()}")
+                                                           Next
+                                                       End If
+                                                   End Sub)
+
 
         Console.WriteLine("VB.NET - Main thread waiting...")
         Console.ReadLine()
     End Sub
 
-    Private Sub Final(completedTask As Task(Of Task))
-        Console.WriteLine(SynchronizationContext.Current?.ToString())
-        Dim faultedTask As Task = completedTask.Result
-        Console.ForegroundColor = ConsoleColor.Green
-        Console.WriteLine($"Completed Task in State:{faultedTask.Status}  with exception:")
-        Console.ForegroundColor = ConsoleColor.Cyan
-        Console.WriteLine($"{faultedTask.Exception?.Flatten()?.InnerException}")
-    End Sub
+
 
 End Module
