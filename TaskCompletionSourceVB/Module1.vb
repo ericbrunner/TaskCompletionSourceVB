@@ -24,28 +24,48 @@ Module Module1
                     Sub(service)
                         ' start pipeline
 
-                        service.StartPipeline().ContinueWith(
-                        Sub(pipelineTask As Task(Of Task))
-
+                        service.StartPipelineAsync().ContinueWith(
+                        Sub(pipelineTask As Task)
+                            Console.ForegroundColor = ConsoleColor.Black
                             Console.WriteLine(SynchronizationContext.Current?.ToString())
-                            Dim faultedTask As Task = pipelineTask.Result
 
-                            Console.ForegroundColor = ConsoleColor.Red
-                            Console.WriteLine($"Completed Task in State:{faultedTask.Status}")
+                            'Uncomment for Option2 (if you can't to get the completed task): get the producer or consumer task out of that WhenAny completion task
+                            'Dim finalTask As Task = pipelineTask.Result
 
-                            Console.ForegroundColor = ConsoleColor.Cyan
+                            ' Comment to test Option 2 if you want to get the inner completed task whic his producer or consumer
+                            Dim finalTask As Task = pipelineTask
 
-                            Dim innerExceptions As ReadOnlyCollection(Of Exception) = Nothing
-                            innerExceptions = faultedTask.Exception?.Flatten()?.InnerExceptions
+                            If (finalTask.IsFaulted) Then
+                                Console.ForegroundColor = ConsoleColor.Red
+                                Console.WriteLine($"Completed Task in State:{finalTask.Status}")
 
-                            If (innerExceptions IsNot Nothing) Then
-                                For Each innerException In innerExceptions
-                                    Console.WriteLine($"{innerException.ToString()}")
-                                Next
+                                Console.ForegroundColor = ConsoleColor.Cyan
+
+                                Dim innerExceptions As ReadOnlyCollection(Of Exception) = Nothing
+                                innerExceptions = finalTask.Exception?.Flatten()?.InnerExceptions
+
+                                If (innerExceptions IsNot Nothing) Then
+                                    For Each innerException In innerExceptions
+                                        Console.WriteLine($"{innerException.ToString()}")
+                                    Next
+                                End If
+
+                                Console.ForegroundColor = ConsoleColor.White
+                                Console.WriteLine("Exit with Code: -1")
+                                Environment.Exit(-1)
+
+                            Else
+                                Console.ForegroundColor = ConsoleColor.Green
+                                Console.WriteLine($"Completed Task in State:{finalTask.Status}")
+                                Console.ForegroundColor = ConsoleColor.White
+                                Console.WriteLine("Exit with Code: 0")
+                                Environment.Exit(0)
+
                             End If
 
-                            Environment.Exit(-1)
+
                         End Sub)
+
                     End Sub)
 
                     ' stop
